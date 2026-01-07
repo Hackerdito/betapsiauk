@@ -32,7 +32,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectArea }) => {
       title: <><span className="whitespace-nowrap">Neuropsicología y</span><br /><span className="whitespace-nowrap">bases biológicas</span></>,
       titleText: "Neuropsicología y bases biológicas",
       desc: "Relación entre cerebro, conducta y procesos mentales desde una perspectiva científica integral.",
-      bgImage: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg"
+      bgImage: "https://images.pexels.com/photos/8204995/pexels-photo-8204995.jpeg"
     },
     {
       id: 'investigacion',
