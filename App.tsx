@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -21,6 +21,34 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [user, setUser] = useState<User | null>(null);
   const [selectedArea, setSelectedArea] = useState<any>(null);
+  const [monthlyUsageSeconds, setMonthlyUsageSeconds] = useState(0);
+
+  const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes
+
+  // Handle monthly time logic
+  useEffect(() => {
+    const checkMonthlyReset = () => {
+      const now = new Date();
+      const currentMonthYear = `${now.getMonth()}-${now.getFullYear()}`;
+      const lastReset = localStorage.getItem('psia_last_reset_month');
+      const storedUsage = localStorage.getItem('psia_monthly_usage');
+
+      if (lastReset !== currentMonthYear) {
+        localStorage.setItem('psia_last_reset_month', currentMonthYear);
+        localStorage.setItem('psia_monthly_usage', '0');
+        setMonthlyUsageSeconds(0);
+      } else if (storedUsage) {
+        setMonthlyUsageSeconds(parseInt(storedUsage, 10));
+      }
+    };
+
+    checkMonthlyReset();
+  }, []);
+
+  const updateMonthlyUsage = (newTotalSeconds: number) => {
+    setMonthlyUsageSeconds(newTotalSeconds);
+    localStorage.setItem('psia_monthly_usage', newTotalSeconds.toString());
+  };
 
   const navigateTo = (page: Page, data?: any) => {
     if (page === 'practice-detail' && data) {
@@ -42,10 +70,15 @@ export default function App() {
 
   const renderContent = () => {
     if (user && currentPage === 'dashboard') return <Dashboard onSelectArea={(area) => navigateTo('practice-detail', area)} />;
-    if (user && currentPage === 'practice-detail') return <PracticeAreaDetail area={selectedArea} onBack={() => navigateTo('dashboard')} />;
-    if (user && currentPage !== 'dashboard' && currentPage !== 'practice-detail') {
-        // Handle other pages if user is logged in but browsing (like terms)
-    }
+    if (user && currentPage === 'practice-detail') return (
+      <PracticeAreaDetail 
+        area={selectedArea} 
+        onBack={() => navigateTo('dashboard')} 
+        isUserLoggedIn={!!user}
+        monthlyUsageSeconds={monthlyUsageSeconds}
+        onUpdateUsage={updateMonthlyUsage}
+      />
+    );
 
     switch (currentPage) {
       case 'home':
@@ -74,6 +107,7 @@ export default function App() {
         user={user} 
         onLogout={handleLogout}
         onLogin={handleLogin}
+        monthlyUsageSeconds={monthlyUsageSeconds}
       />
       {renderContent()}
     </div>

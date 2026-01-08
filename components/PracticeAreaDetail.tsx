@@ -31,34 +31,19 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, isExpanded, onTog
         <div className="flex-1 pr-4 text-left">
           <span className="text-brand-orange font-bold block mb-1 text-lg">{scenario.code}</span>
           <h4 className="text-white font-bold text-xl leading-[1.2]">{scenario.title}</h4>
-          
-          {/* Orange line visible only when expanded */}
           <div className={`h-0.5 bg-brand-orange mt-6 transition-all duration-500 origin-left ${isExpanded ? 'w-32 opacity-100' : 'w-0 opacity-0'}`}></div>
         </div>
         
         <button className="bg-white/10 rounded-full p-2 border border-white/20 transition-all duration-300 hover:bg-white/20 shrink-0">
-          {isExpanded ? (
-            <Minus size={24} className="text-white" />
-          ) : (
-            <Plus size={24} className="text-white" />
-          )}
+          {isExpanded ? <Minus size={24} className="text-white" /> : <Plus size={24} className="text-white" />}
         </button>
       </div>
       
-      <div 
-        className={`transition-all duration-500 ease-in-out px-8 text-left ${
-          isExpanded ? 'max-h-[500px] pb-10 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-        }`}
-      >
-        <p className="text-white/80 text-base leading-relaxed mb-10 mt-2 font-light">
-          {scenario.description}
-        </p>
+      <div className={`transition-all duration-500 ease-in-out px-8 text-left ${isExpanded ? 'max-h-[500px] pb-10 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+        <p className="text-white/80 text-base leading-relaxed mb-10 mt-2 font-light">{scenario.description}</p>
         <div className="flex justify-center">
           <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenWidget(scenario.agentId);
-            }}
+            onClick={(e) => { e.stopPropagation(); onOpenWidget(scenario.agentId); }}
             className="px-14 py-3 rounded-full border border-white text-white font-bold hover:bg-white hover:text-[#1A2232] transition-all active:scale-95 shadow-xl"
           >
             Empezar
@@ -70,17 +55,20 @@ const ScenarioCard: React.FC<ScenarioCardProps> = ({ scenario, isExpanded, onTog
 };
 
 interface PracticeAreaDetailProps {
-  area: {
-    id: string;
-    title: React.ReactNode;
-    titleText: string;
-    desc: string;
-    bgImage: string;
-  } | null;
+  area: { id: string; title: React.ReactNode; titleText: string; desc: string; bgImage: string; } | null;
   onBack: () => void;
+  isUserLoggedIn?: boolean;
+  monthlyUsageSeconds?: number;
+  onUpdateUsage?: (seconds: number) => void;
 }
 
-const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({ area, onBack }) => {
+const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({ 
+  area, 
+  onBack, 
+  isUserLoggedIn = false, 
+  monthlyUsageSeconds = 0, 
+  onUpdateUsage 
+}) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
@@ -175,7 +163,6 @@ const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({ area, onBack })
 
   return (
     <div className="min-h-screen bg-[#1A2232] pb-32 overflow-x-hidden">
-      {/* Hero Section */}
       <section className="relative h-[75vh] flex flex-col justify-end pb-16 px-6 lg:px-24">
         <div className="absolute inset-0 z-0">
           <img src={area.bgImage} className="w-full h-full object-cover" alt={area.titleText} />
@@ -183,82 +170,50 @@ const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({ area, onBack })
         </div>
         
         <div className="relative z-10 max-w-4xl">
-          <button 
-            onClick={onBack}
-            className="flex items-center gap-2 mb-8 text-white/70 hover:text-white transition-colors font-medium group"
-          >
+          <button onClick={onBack} className="flex items-center gap-2 mb-8 text-white/70 hover:text-white transition-colors font-medium group">
             <ArrowLeft size={20} className="transition-transform group-hover:-translate-x-1" />
             Regresar al Dashboard
           </button>
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
-            {area.title}
-          </h1>
-          <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl leading-relaxed font-light">
-            {area.desc}
-          </p>
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight">{area.title}</h1>
+          <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl leading-relaxed font-light">{area.desc}</p>
         </div>
       </section>
 
-      {/* Scenarios Grid */}
       <div className="max-w-7xl mx-auto px-6 mt-32 space-y-40">
-        
-        {/* Section 1: Practice Scenarios */}
         <div>
           <div className="text-center mb-24">
-            <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-6">
-              Escenarios de Práctica
-            </h2>
+            <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-6">Escenarios de Práctica</h2>
             <div className="w-24 h-1 bg-brand-orange mx-auto rounded-full"></div>
           </div>
-
-          {currentScenarios.practice.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentScenarios.practice.map(s => (
-                <ScenarioCard 
-                  key={s.id} 
-                  scenario={s} 
-                  isExpanded={expandedId === s.id}
-                  onToggle={handleToggle}
-                  onOpenWidget={handleOpenWidget}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white/5 border border-white/10 rounded-3xl py-20 px-6 text-center">
-              <p className="text-white/40 text-2xl font-medium">Próximamente disponible</p>
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {currentScenarios.practice.map(s => (
+              <ScenarioCard key={s.id} scenario={s} isExpanded={expandedId === s.id} onToggle={handleToggle} onOpenWidget={handleOpenWidget} />
+            ))}
+          </div>
         </div>
 
-        {/* Section 2: General Case Scenarios - Only show if has data */}
         {currentScenarios.general.length > 0 && (
           <div>
             <div className="text-center mb-24">
-              <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-6">
-                Escenarios de Caso General
-              </h2>
+              <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-6">Escenarios de Caso General</h2>
               <div className="w-24 h-1 bg-white/20 mx-auto rounded-full"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {currentScenarios.general.map(s => (
-                <ScenarioCard 
-                  key={s.id} 
-                  scenario={s} 
-                  isExpanded={expandedId === s.id}
-                  onToggle={handleToggle}
-                  onOpenWidget={handleOpenWidget}
-                />
+                <ScenarioCard key={s.id} scenario={s} isExpanded={expandedId === s.id} onToggle={handleToggle} onOpenWidget={handleOpenWidget} />
               ))}
             </div>
           </div>
         )}
-
       </div>
 
       <WidgetModal 
         isOpen={isWidgetOpen} 
         onClose={() => setIsWidgetOpen(false)} 
         agentId={selectedAgentId}
+        isUserLoggedIn={isUserLoggedIn}
+        monthlyUsageSeconds={monthlyUsageSeconds}
+        onUpdateUsage={onUpdateUsage}
       />
     </div>
   );
