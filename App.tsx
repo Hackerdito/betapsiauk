@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -23,8 +23,6 @@ export default function App() {
   const [selectedArea, setSelectedArea] = useState<any>(null);
   const [monthlyUsageSeconds, setMonthlyUsageSeconds] = useState(0);
 
-  const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes
-
   // Handle monthly time logic
   useEffect(() => {
     const checkMonthlyReset = () => {
@@ -45,10 +43,13 @@ export default function App() {
     checkMonthlyReset();
   }, []);
 
-  const updateMonthlyUsage = (newTotalSeconds: number) => {
-    setMonthlyUsageSeconds(newTotalSeconds);
-    localStorage.setItem('psia_monthly_usage', newTotalSeconds.toString());
-  };
+  const handleTick = useCallback(() => {
+    setMonthlyUsageSeconds((prev) => {
+      const newVal = prev + 1;
+      localStorage.setItem('psia_monthly_usage', newVal.toString());
+      return newVal;
+    });
+  }, []);
 
   const navigateTo = (page: Page, data?: any) => {
     if (page === 'practice-detail' && data) {
@@ -76,7 +77,7 @@ export default function App() {
         onBack={() => navigateTo('dashboard')} 
         isUserLoggedIn={!!user}
         monthlyUsageSeconds={monthlyUsageSeconds}
-        onUpdateUsage={updateMonthlyUsage}
+        onTick={handleTick}
       />
     );
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, X, Key, LogOut, ChevronDown, Clock } from 'lucide-react';
+import { Menu, X, Key, LogOut, ChevronDown, Clock, User as UserIcon } from 'lucide-react';
 import LoginModal from './LoginModal';
 import { Page, User } from '../App';
 
@@ -16,7 +16,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
+  
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const timeMenuRef = useRef<HTMLDivElement>(null);
 
   const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes
   const timeLeftSeconds = Math.max(0, MONTHLY_LIMIT_SECONDS - monthlyUsageSeconds);
@@ -31,6 +34,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (timeMenuRef.current && !timeMenuRef.current.contains(event.target as Node)) {
+        setIsTimeMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -48,7 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
           />
         </div>
 
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-4">
           {!user ? (
             currentPage === 'home' ? (
               <>
@@ -74,53 +80,76 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
               </button>
             )
           ) : (
-            <div className="relative" ref={userMenuRef}>
-              <button 
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 border border-white/30 hover:border-white text-white py-1.5 px-4 rounded-full transition-all"
-              >
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span className="font-medium">{user.name}</span>
-                <ChevronDown size={16} className={`transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
+            <div className="flex items-center gap-3">
+              {/* BOTÓN 2: Tiempo Restante */}
+              <div className="relative" ref={timeMenuRef}>
+                <button 
+                  onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
+                  className="flex items-center gap-3 border border-white/10 hover:border-white/30 bg-white/5 text-white py-2 px-5 rounded-full transition-all"
+                >
+                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                  <span className="font-semibold text-[15px] tracking-tight">Tiempo restante</span>
+                  <ChevronDown size={18} className={`text-white/70 transition-transform duration-200 ${isTimeMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-              {isUserMenuOpen && (
-                <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="p-5 border-b border-gray-100 flex items-center gap-4">
-                    <img src={user.avatar} className="w-12 h-12 rounded-lg object-cover" />
-                    <div className="flex flex-col overflow-hidden">
-                      <span className="font-bold text-gray-900 truncate">{user.name}</span>
-                      <span className="text-xs text-gray-500 truncate">{user.email}</span>
+                {isTimeMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 text-brand-orange mb-3">
+                        <Clock size={20} />
+                        <span className="text-xs font-bold uppercase tracking-widest">Plan Mensual</span>
+                      </div>
+                      <div className="text-3xl font-black text-gray-900">
+                        {formatTime(timeLeftSeconds)}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2 font-medium italic">
+                        El tiempo se reinicia cada mes automáticamente.
+                      </p>
                     </div>
                   </div>
-                  
-                  {/* Monthly Time Indicator */}
-                  <div className="mx-4 mt-4 p-4 bg-brand-orange/5 rounded-2xl border border-brand-orange/10 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-brand-orange">
-                      <Clock size={18} />
-                      <span className="text-xs font-bold uppercase tracking-wider">Tiempo mensual</span>
-                    </div>
-                    <span className="text-sm font-extrabold text-brand-orange">{formatTime(timeLeftSeconds)}</span>
-                  </div>
+                )}
+              </div>
 
-                  <div className="p-2">
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors text-left">
-                      <Key size={16} className="text-gray-400" />
-                      Cambiar contraseña
-                    </button>
-                    <button 
-                      onClick={() => {
-                        onLogout();
-                        setIsUserMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left"
-                    >
-                      <LogOut size={16} />
-                      Cerrar sesión
-                    </button>
+              {/* BOTÓN 1: Usuario */}
+              <div className="relative" ref={userMenuRef}>
+                <button 
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-3 border border-white/10 hover:border-white/30 bg-white/5 text-white py-2 px-5 rounded-full transition-all"
+                >
+                  <UserIcon size={18} className="text-white/70" />
+                  <span className="font-semibold text-[15px] tracking-tight">{user.name}</span>
+                  <ChevronDown size={18} className={`text-white/70 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-5 border-b border-gray-100 flex items-center gap-4">
+                      <img src={user.avatar} className="w-12 h-12 rounded-lg object-cover" />
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="font-bold text-gray-900 truncate">{user.name}</span>
+                        <span className="text-xs text-gray-500 truncate">{user.email}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-2">
+                      <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors text-left">
+                        <Key size={16} className="text-gray-400" />
+                        Cambiar contraseña
+                      </button>
+                      <button 
+                        onClick={() => {
+                          onLogout();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left"
+                      >
+                        <LogOut size={16} />
+                        Cerrar sesión
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -151,7 +180,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                     <span className="text-gray-400 text-sm">{user.email}</span>
                   </div>
                 </div>
-                {/* Mobile time counter */}
                 <div className="p-4 bg-brand-orange/20 rounded-2xl flex justify-between items-center">
                   <span className="text-brand-orange font-bold">Tiempo restante</span>
                   <span className="text-white font-bold">{formatTime(timeLeftSeconds)}</span>

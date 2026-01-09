@@ -9,7 +9,7 @@ interface WidgetModalProps {
   onSubscribe?: () => void;
   isUserLoggedIn?: boolean;
   monthlyUsageSeconds?: number;
-  onUpdateUsage?: (seconds: number) => void;
+  onTick?: () => void;
 }
 
 const WidgetModal: React.FC<WidgetModalProps> = ({ 
@@ -20,7 +20,7 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
   onSubscribe,
   isUserLoggedIn = false,
   monthlyUsageSeconds = 0,
-  onUpdateUsage
+  onTick
 }) => {
   const [demoTimeUsed, setDemoTimeUsed] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -29,9 +29,10 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
   const DEMO_LIMIT_SECONDS = 300; // 5 minutes demo
   const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes for logged in users
 
-  // Reset active state when modal opens
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
+      stopTimer();
+    } else {
       setIsActive(false);
     }
     return () => stopTimer();
@@ -55,8 +56,8 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
           localStorage.setItem('psia_demo_usage', newTime.toString());
           return newTime;
         });
-      } else if (isUserLoggedIn && onUpdateUsage) {
-        onUpdateUsage(monthlyUsageSeconds + 1);
+      } else if (isUserLoggedIn && onTick) {
+        onTick();
       }
     }, 1000);
   };
@@ -79,7 +80,6 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Determine expiration based on mode
   const isTimeExpired = isDemoMode 
     ? demoTimeUsed >= DEMO_LIMIT_SECONDS 
     : (isUserLoggedIn && monthlyUsageSeconds >= MONTHLY_LIMIT_SECONDS);
@@ -139,7 +139,7 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
           <>
             <div className={`absolute top-0 right-6 px-3 py-1 rounded-full flex items-center gap-2 text-sm font-bold border transition-colors ${isActive ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-brand-orange/20 border-brand-orange/30 text-brand-orange'}`}>
               <Clock size={14} className={isActive ? 'animate-spin' : ''} />
-              <span>{isActive ? 'Conversando...' : 'Pulsa el botón para hablar'} | {formatTime(timeLeft)}</span>
+              <span>{isActive ? 'Minutos restantes' : 'Pulsa el botón para hablar'} | {formatTime(timeLeft)}</span>
             </div>
 
             <img
