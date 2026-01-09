@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Clock, Lock } from 'lucide-react';
+import { X, Clock, Lock, MessageCircle } from 'lucide-react';
 
 interface WidgetModalProps {
   isOpen: boolean;
@@ -27,15 +27,38 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
   const intervalRef = useRef<number | null>(null);
 
   const DEMO_LIMIT_SECONDS = 300; // 5 minutes demo
-  const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes for logged in users
+  const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes base limit
+
+  // Cronómetro optimizado
+  useEffect(() => {
+    if (isActive) {
+      intervalRef.current = window.setInterval(() => {
+        if (isDemoMode) {
+          setDemoTimeUsed((prev) => {
+            const newTime = prev + 1;
+            localStorage.setItem('psia_demo_usage', newTime.toString());
+            return newTime;
+          });
+        } else if (isUserLoggedIn && onTick) {
+          onTick();
+        }
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isActive, isDemoMode, isUserLoggedIn, onTick]);
 
   useEffect(() => {
     if (!isOpen) {
-      stopTimer();
-    } else {
       setIsActive(false);
     }
-    return () => stopTimer();
   }, [isOpen]);
 
   useEffect(() => {
@@ -45,37 +68,8 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
     }
   }, [isDemoMode]);
 
-  const startTimer = () => {
-    if (intervalRef.current) return;
-    setIsActive(true);
-    
-    intervalRef.current = window.setInterval(() => {
-      if (isDemoMode) {
-        setDemoTimeUsed((prev) => {
-          const newTime = prev + 1;
-          localStorage.setItem('psia_demo_usage', newTime.toString());
-          return newTime;
-        });
-      } else if (isUserLoggedIn && onTick) {
-        onTick();
-      }
-    }, 1000);
-  };
-
-  const stopTimer = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    setIsActive(false);
-  };
-
   const handleWidgetClick = () => {
-    if (isActive) {
-      stopTimer();
-    } else {
-      startTimer();
-    }
+    setIsActive(!isActive);
   };
 
   if (!isOpen) return null;
@@ -114,22 +108,36 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
         className="flex flex-col items-center text-white text-center text-base font-medium max-w-[740px] w-full p-6 relative"
       >
         {isTimeExpired ? (
-          <div className="bg-[#1A2232] rounded-[2rem] p-10 border border-white/10 shadow-2xl w-full flex flex-col items-center">
-            <div className="bg-brand-orange/20 p-4 rounded-full mb-6">
-              <Lock className="text-brand-orange w-12 h-12" />
+          <div className="bg-[#1A2232] rounded-[3.5rem] p-12 border border-white/10 shadow-2xl w-full flex flex-col items-center">
+            <div className="bg-brand-orange/20 p-5 rounded-full mb-8">
+              <Lock className="text-brand-orange w-14 h-14" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               {isDemoMode ? "Tiempo de prueba terminado" : "Límite mensual alcanzado"}
             </h2>
-            <p className="text-gray-300 text-lg mb-8 max-w-md">
+            <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-md leading-relaxed">
               {isDemoMode 
-                ? "Has alcanzado el límite de 5 minutos de la demostración gratuita. Suscríbete para prácticas ilimitadas."
-                : "Has alcanzado tu límite de 60 minutos mensuales. Tu tiempo se reiniciará el próximo mes."}
+                ? "Has alcanzado el límite de la demostración gratuita. Suscríbete para continuar con tus prácticas."
+                : "Si tienes alguna duda contacta a tu coach"}
             </p>
+            
+            {/* Botón de WhatsApp para alumnos con límite excedido */}
+            {!isDemoMode && (
+              <a 
+                href="https://bit.ly/AlumnoUk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-4 px-10 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95"
+              >
+                <MessageCircle size={24} fill="currentColor" />
+                Contactar por WhatsApp
+              </a>
+            )}
+
             {isDemoMode && (
               <button 
                 onClick={() => onSubscribe && onSubscribe()}
-                className="px-10 py-4 bg-brand-orange text-white font-bold text-lg rounded-full shadow-lg transition-transform active:scale-95"
+                className="px-12 py-4 bg-brand-orange text-white font-bold text-xl rounded-full shadow-lg transition-transform active:scale-95"
               >
                 Suscríbete Aquí
               </button>
@@ -137,22 +145,22 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
           </div>
         ) : (
           <>
-            <div className={`absolute top-0 right-6 px-3 py-1 rounded-full flex items-center gap-2 text-sm font-bold border transition-colors ${isActive ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-brand-orange/20 border-brand-orange/30 text-brand-orange'}`}>
-              <Clock size={14} className={isActive ? 'animate-spin' : ''} />
+            <div className={`absolute top-0 right-6 px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold border transition-colors ${isActive ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-brand-orange/20 border-brand-orange/30 text-brand-orange'}`}>
+              <Clock size={16} className={isActive ? 'animate-spin' : ''} />
               <span>{isActive ? 'Minutos restantes' : 'Pulsa el botón para hablar'} | {formatTime(timeLeft)}</span>
             </div>
 
             <img
               src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-              className="block w-[100px] h-[100px] object-cover rounded-full mx-auto mb-6 border-2 border-white/20 shadow-2xl"
+              className="block w-[120px] h-[120px] object-cover rounded-full mx-auto mb-8 border-4 border-white/10 shadow-2xl"
             />
 
-            <p className="leading-relaxed mb-10 text-lg md:text-xl max-w-2xl mx-auto">
+            <p className="leading-relaxed mb-10 text-xl md:text-2xl max-w-2xl mx-auto font-light">
               A partir de este momento comienza la simulación. <span className="font-bold text-brand-orange">El tiempo solo contará cuando el botón de abajo esté activo.</span> Deberás indagar en mi situación para ayudarme. No olvides pedirme retroalimentación al finalizar.
             </p>
 
             <div 
-              className="w-full flex justify-center mt-4 min-h-[100px] relative z-20 cursor-pointer"
+              className="w-full flex justify-center mt-4 min-h-[120px] relative z-20 cursor-pointer"
               onClickCapture={handleWidgetClick}
             >
               {/* @ts-ignore */}

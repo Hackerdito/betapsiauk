@@ -54,7 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
           />
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
           {!user ? (
             currentPage === 'home' ? (
               <>
@@ -80,12 +80,12 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
               </button>
             )
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* BOTÓN 2: Tiempo Restante */}
               <div className="relative" ref={timeMenuRef}>
                 <button 
                   onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
-                  className="flex items-center gap-3 border border-white/10 hover:border-white/30 bg-white/5 text-white py-2 px-5 rounded-full transition-all"
+                  className="flex items-center gap-3 border border-white/20 hover:border-white/40 bg-white/5 text-white py-2 px-5 rounded-full transition-all"
                 >
                   <span className="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
                   <span className="font-semibold text-[15px] tracking-tight">Tiempo restante</span>
@@ -102,8 +102,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                       <div className="text-3xl font-black text-gray-900">
                         {formatTime(timeLeftSeconds)}
                       </div>
-                      <p className="text-xs text-gray-400 mt-2 font-medium italic">
-                        El tiempo se reinicia cada mes automáticamente.
+                      <p className="text-[10px] text-gray-400 mt-2 font-medium">
+                        Tu tiempo se reinicia automáticamente cada mes.
                       </p>
                     </div>
                   </div>
@@ -114,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
               <div className="relative" ref={userMenuRef}>
                 <button 
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-3 border border-white/10 hover:border-white/30 bg-white/5 text-white py-2 px-5 rounded-full transition-all"
+                  className="flex items-center gap-3 border border-white/20 hover:border-white/40 bg-white/5 text-white py-2 px-5 rounded-full transition-all"
                 >
                   <UserIcon size={18} className="text-white/70" />
                   <span className="font-semibold text-[15px] tracking-tight">{user.name}</span>
@@ -132,7 +132,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                     </div>
                     
                     <div className="p-2">
-                      <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors text-left">
+                      <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors text-left font-medium">
                         <Key size={16} className="text-gray-400" />
                         Cambiar contraseña
                       </button>
@@ -141,7 +141,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                           onLogout();
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left font-semibold"
                       >
                         <LogOut size={16} />
                         Cerrar sesión
