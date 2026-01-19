@@ -26,7 +26,8 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
   const [isActive, setIsActive] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
-  const DEMO_LIMIT_SECONDS = 300; // 5 minutes demo
+  // El límite de demo ahora es de 60 segundos (1 minuto)
+  const DEMO_LIMIT_SECONDS = 60; 
   const MONTHLY_LIMIT_SECONDS = 3600; // 60 minutes base limit
 
   // Cronómetro optimizado
