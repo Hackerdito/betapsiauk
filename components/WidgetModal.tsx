@@ -105,29 +105,28 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'fadeUp 1s ease-out forwards' }}
-        className="flex flex-col items-center text-white text-center text-base font-medium max-w-[740px] w-full p-6 relative"
+        className="flex flex-col items-center text-white text-center text-base font-medium max-w-[740px] w-full p-4 md:p-6 relative"
       >
         {isTimeExpired ? (
-          <div className="bg-[#1A2232] rounded-[3.5rem] p-12 border border-white/10 shadow-2xl w-full flex flex-col items-center">
+          <div className="bg-[#1A2232] rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-2xl w-full flex flex-col items-center">
             <div className="bg-brand-orange/20 p-5 rounded-full mb-8">
-              <Lock className="text-brand-orange w-14 h-14" />
+              <Lock className="text-brand-orange w-12 h-12 md:w-16 md:h-16" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            <h2 className="text-2xl md:text-4xl font-bold text-white mb-6">
               {isDemoMode ? "Tiempo de prueba terminado" : "Límite mensual alcanzado"}
             </h2>
-            <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-md leading-relaxed">
+            <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-sm leading-relaxed">
               {isDemoMode 
-                ? "Has alcanzado el límite de la demostración gratuita. Suscríbete para continuar con tus prácticas."
+                ? "Has alcanzado el límite de la demostración gratuita. Suscríbete para continuar."
                 : "Si tienes alguna duda contacta a tu coach"}
             </p>
             
-            {/* Botón de WhatsApp para alumnos con límite excedido */}
             {!isDemoMode && (
               <a 
                 href="https://bit.ly/AlumnoUk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-4 px-10 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-4 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-4 px-10 rounded-full shadow-xl transition-all hover:scale-105 active:scale-95"
               >
                 <MessageCircle size={24} fill="currentColor" />
                 Contactar por WhatsApp
@@ -145,22 +144,22 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
           </div>
         ) : (
           <>
-            <div className={`absolute top-0 right-6 px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold border transition-colors ${isActive ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-brand-orange/20 border-brand-orange/30 text-brand-orange'}`}>
-              <Clock size={16} className={isActive ? 'animate-spin' : ''} />
+            <div className={`absolute -top-12 md:top-0 right-1/2 translate-x-1/2 md:translate-x-0 md:right-6 px-4 py-1.5 rounded-full flex items-center gap-2 text-xs md:text-sm font-bold border transition-colors whitespace-nowrap ${isActive ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-brand-orange/20 border-brand-orange/30 text-brand-orange'}`}>
+              <Clock size={14} className={isActive ? 'animate-spin' : ''} />
               <span>{isActive ? 'Minutos restantes' : 'Pulsa el botón para hablar'} | {formatTime(timeLeft)}</span>
             </div>
 
             <img
               src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-              className="block w-[120px] h-[120px] object-cover rounded-full mx-auto mb-8 border-4 border-white/10 shadow-2xl"
+              className="block w-[100px] h-[100px] md:w-[130px] md:h-[130px] object-cover rounded-full mx-auto mb-8 border-4 border-white/10 shadow-2xl"
             />
 
-            <p className="leading-relaxed mb-10 text-xl md:text-2xl max-w-2xl mx-auto font-light">
+            <p className="leading-relaxed mb-10 text-lg md:text-2xl max-w-2xl mx-auto font-light">
               A partir de este momento comienza la simulación. <span className="font-bold text-brand-orange">El tiempo solo contará cuando el botón de abajo esté activo.</span> Deberás indagar en mi situación para ayudarme. No olvides pedirme retroalimentación al finalizar.
             </p>
 
             <div 
-              className="w-full flex justify-center mt-4 min-h-[120px] relative z-20 cursor-pointer"
+              className="w-full flex justify-center mt-2 min-h-[100px] md:min-h-[140px] relative z-20 cursor-pointer"
               onClickCapture={handleWidgetClick}
             >
               {/* @ts-ignore */}

@@ -22,28 +22,57 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [selectedArea, setSelectedArea] = useState<any>(null);
   const [monthlyUsageSeconds, setMonthlyUsageSeconds] = useState(0);
+  const [renewalDate, setRenewalDate] = useState<string | null>(null);
 
-  // Handle monthly time logic
+  // Handle monthly time logic with first-use activation
   useEffect(() => {
-    const checkMonthlyReset = () => {
-      const now = new Date();
-      const currentMonthYear = `${now.getMonth()}-${now.getFullYear()}`;
-      const lastReset = localStorage.getItem('psia_last_reset_month');
+    const checkRenewal = () => {
+      const storedFirstUse = localStorage.getItem('psia_first_use_timestamp');
       const storedUsage = localStorage.getItem('psia_monthly_usage');
-
-      if (lastReset !== currentMonthYear) {
-        localStorage.setItem('psia_last_reset_month', currentMonthYear);
-        localStorage.setItem('psia_monthly_usage', '0');
-        setMonthlyUsageSeconds(0);
-      } else if (storedUsage) {
-        setMonthlyUsageSeconds(parseInt(storedUsage, 10));
+      
+      if (storedFirstUse) {
+        const firstUseDate = new Date(parseInt(storedFirstUse, 10));
+        const now = new Date();
+        
+        // Calculate next renewal date (same day next month)
+        let nextRenewal = new Date(firstUseDate);
+        nextRenewal.setMonth(nextRenewal.getMonth() + 1);
+        
+        // If we passed the renewal date, reset
+        if (now >= nextRenewal) {
+          // Update first use to "today" to start the new cycle
+          localStorage.setItem('psia_first_use_timestamp', now.getTime().toString());
+          localStorage.setItem('psia_monthly_usage', '0');
+          setMonthlyUsageSeconds(0);
+          
+          const newRenewal = new Date(now);
+          newRenewal.setMonth(newRenewal.getMonth() + 1);
+          setRenewalDate(newRenewal.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }));
+        } else {
+          setMonthlyUsageSeconds(storedUsage ? parseInt(storedUsage, 10) : 0);
+          setRenewalDate(nextRenewal.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }));
+        }
+      } else {
+        setMonthlyUsageSeconds(storedUsage ? parseInt(storedUsage, 10) : 0);
       }
     };
 
-    checkMonthlyReset();
+    checkRenewal();
+    const interval = setInterval(checkRenewal, 60000); // Check every minute
+    return () => clearInterval(interval);
   }, []);
 
   const handleTick = useCallback(() => {
+    // Set first use timestamp if it doesn't exist (this is the "click first widget" trigger)
+    if (!localStorage.getItem('psia_first_use_timestamp')) {
+      const now = new Date();
+      localStorage.setItem('psia_first_use_timestamp', now.getTime().toString());
+      
+      const nextRenewal = new Date(now);
+      nextRenewal.setMonth(nextRenewal.getMonth() + 1);
+      setRenewalDate(nextRenewal.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }));
+    }
+
     setMonthlyUsageSeconds((prev) => {
       const newVal = prev + 1;
       localStorage.setItem('psia_monthly_usage', newVal.toString());
@@ -109,6 +138,7 @@ export default function App() {
         onLogout={handleLogout}
         onLogin={handleLogin}
         monthlyUsageSeconds={monthlyUsageSeconds}
+        renewalDate={renewalDate}
       />
       {renderContent()}
     </div>

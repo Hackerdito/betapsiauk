@@ -10,9 +10,10 @@ interface NavbarProps {
   onLogout: () => void;
   onLogin: (user: User) => void;
   monthlyUsageSeconds?: number;
+  renewalDate?: string | null;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout, onLogin, monthlyUsageSeconds = 0 }) => {
+const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout, onLogin, monthlyUsageSeconds = 0, renewalDate }) => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -81,7 +82,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
             )
           ) : (
             <div className="flex items-center gap-2">
-              {/* BOTÓN 2: Tiempo Restante */}
+              {/* BOTÓN TIEMPO (PILL) */}
               <div className="relative" ref={timeMenuRef}>
                 <button 
                   onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
@@ -97,20 +98,22 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                     <div className="p-6">
                       <div className="flex items-center gap-2 text-brand-orange mb-3">
                         <Clock size={20} />
-                        <span className="text-xs font-bold uppercase tracking-widest">Plan Mensual</span>
+                        <span className="text-xs font-bold uppercase tracking-widest">Contador Mensual</span>
                       </div>
                       <div className="text-3xl font-black text-gray-900">
                         {formatTime(timeLeftSeconds)}
                       </div>
-                      <p className="text-[10px] text-gray-400 mt-2 font-medium">
-                        Tu tiempo se reinicia automáticamente cada mes.
-                      </p>
+                      {renewalDate && (
+                        <p className="text-[11px] text-gray-500 mt-3 font-semibold bg-gray-50 p-2 rounded-lg border border-gray-100">
+                          Se reinicia el: {renewalDate}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* BOTÓN 1: Usuario */}
+              {/* BOTÓN USUARIO (PILL) */}
               <div className="relative" ref={userMenuRef}>
                 <button 
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -123,7 +126,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-5 border-b border-gray-100 flex items-center gap-4">
+                    <div className="p-5 border-b border-gray-100 flex items-center gap-4 bg-gray-50/50">
                       <img src={user.avatar} className="w-12 h-12 rounded-lg object-cover" />
                       <div className="flex flex-col overflow-hidden">
                         <span className="font-bold text-gray-900 truncate">{user.name}</span>
@@ -180,9 +183,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                     <span className="text-gray-400 text-sm">{user.email}</span>
                   </div>
                 </div>
-                <div className="p-4 bg-brand-orange/20 rounded-2xl flex justify-between items-center">
-                  <span className="text-brand-orange font-bold">Tiempo restante</span>
-                  <span className="text-white font-bold">{formatTime(timeLeftSeconds)}</span>
+                <div className="p-4 bg-brand-orange/20 rounded-2xl flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-brand-orange font-bold">Tiempo restante</span>
+                    <span className="text-white font-bold">{formatTime(timeLeftSeconds)}</span>
+                  </div>
+                  {renewalDate && (
+                    <span className="text-[10px] text-white/50 italic">Reinicia el: {renewalDate}</span>
+                  )}
                 </div>
                 <button className="w-full text-white text-left px-4 py-4 border-b border-white/5 flex items-center gap-3"><Key size={20} /> Cambiar contraseña</button>
                 <button onClick={onLogout} className="w-full text-red-500 text-left px-4 py-4 flex items-center gap-3"><LogOut size={20} /> Cerrar sesión</button>
