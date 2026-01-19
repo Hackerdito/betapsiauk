@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, X, Key, LogOut, ChevronDown, Clock, User as UserIcon } from 'lucide-react';
+import { Menu, X, Key, LogOut, ChevronDown, Clock, User as UserIcon, LayoutDashboard } from 'lucide-react';
 import LoginModal from './LoginModal';
 import { Page, User } from '../App';
 
@@ -47,7 +47,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
   return (
     <>
       <nav className="w-full bg-[#1A2232] px-6 py-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-white/5 shadow-md">
-        <div className="flex items-center cursor-pointer" onClick={() => onNavigate('home')}>
+        <div 
+          className="flex items-center cursor-pointer" 
+          onClick={() => onNavigate(user ? 'dashboard' : 'home')}
+        >
           <img 
             src="https://fileuk.netlify.app/universidaduk.png" 
             alt="Universidad UK" 
@@ -81,7 +84,18 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
               </button>
             )
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Botón de acceso directo a Prácticas si está logueado pero fuera del dashboard */}
+              {(currentPage === 'home' || currentPage === 'subscription') && (
+                <button 
+                  onClick={() => onNavigate('dashboard')}
+                  className="flex items-center gap-2 bg-brand-orange hover:bg-orange-600 text-white text-sm font-bold py-2.5 px-6 rounded-full transition-all shadow-lg shadow-orange-500/10 mr-2"
+                >
+                  <LayoutDashboard size={16} />
+                  Ir a mis Prácticas
+                </button>
+              )}
+
               {/* BOTÓN TIEMPO (PILL) */}
               <div className="relative" ref={timeMenuRef}>
                 <button 
@@ -143,6 +157,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                         onClick={() => {
                           onLogout();
                           setIsUserMenuOpen(false);
+                          setIsMobileMenuOpen(false);
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left font-semibold"
                       >
@@ -183,17 +198,33 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, user, onLogout
                     <span className="text-gray-400 text-sm">{user.email}</span>
                   </div>
                 </div>
-                <div className="p-4 bg-brand-orange/20 rounded-2xl flex flex-col gap-2">
+
+                <button 
+                  onClick={() => {
+                    onNavigate('dashboard');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-brand-orange text-white text-lg font-bold py-4 rounded-xl flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard size={20} />
+                  Ir a mis Prácticas
+                </button>
+
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-brand-orange font-bold">Tiempo restante</span>
+                    <span className="text-brand-orange font-bold text-sm uppercase tracking-wider">Tiempo restante</span>
                     <span className="text-white font-bold">{formatTime(timeLeftSeconds)}</span>
                   </div>
                   {renewalDate && (
-                    <span className="text-[10px] text-white/50 italic">Reinicia el: {renewalDate}</span>
+                    <span className="text-[11px] text-white/50 italic">Reinicia el: {renewalDate}</span>
                   )}
                 </div>
-                <button className="w-full text-white text-left px-4 py-4 border-b border-white/5 flex items-center gap-3"><Key size={20} /> Cambiar contraseña</button>
-                <button onClick={onLogout} className="w-full text-red-500 text-left px-4 py-4 flex items-center gap-3"><LogOut size={20} /> Cerrar sesión</button>
+                
+                <button className="w-full text-white text-left px-4 py-4 border-b border-white/5 flex items-center gap-3 mt-4"><Key size={20} /> Cambiar contraseña</button>
+                <button onClick={() => {
+                  onLogout();
+                  setIsMobileMenuOpen(false);
+                }} className="w-full text-red-500 text-left px-4 py-4 flex items-center gap-3"><LogOut size={20} /> Cerrar sesión</button>
               </div>
             )}
           </div>
