@@ -107,6 +107,7 @@ export default function App() {
         isUserLoggedIn={!!user}
         monthlyUsageSeconds={monthlyUsageSeconds}
         onTick={handleTick}
+        renewalDate={renewalDate}
       />
     );
 

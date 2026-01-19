@@ -10,6 +10,7 @@ interface WidgetModalProps {
   isUserLoggedIn?: boolean;
   monthlyUsageSeconds?: number;
   onTick?: () => void;
+  renewalDate?: string | null;
 }
 
 const WidgetModal: React.FC<WidgetModalProps> = ({ 
@@ -20,7 +21,8 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
   onSubscribe,
   isUserLoggedIn = false,
   monthlyUsageSeconds = 0,
-  onTick
+  onTick,
+  renewalDate
 }) => {
   const [demoTimeUsed, setDemoTimeUsed] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -116,11 +118,18 @@ const WidgetModal: React.FC<WidgetModalProps> = ({
             <h2 className="text-2xl md:text-4xl font-bold text-white mb-6">
               {isDemoMode ? "Tiempo de prueba terminado" : "Límite mensual alcanzado"}
             </h2>
-            <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-sm leading-relaxed">
-              {isDemoMode 
-                ? "Has alcanzado el límite de la demostración gratuita. Suscríbete para continuar."
-                : "Si tienes alguna duda contacta a tu coach"}
-            </p>
+            <div className="text-gray-300 text-lg md:text-xl mb-10 max-w-md leading-relaxed space-y-4">
+              {isDemoMode ? (
+                <p>Has alcanzado el límite de la demostración gratuita. Suscríbete para continuar.</p>
+              ) : (
+                <>
+                  {renewalDate && (
+                    <p className="font-semibold text-white">Tu tiempo se reanudará el: <span className="text-brand-orange">{renewalDate}</span></p>
+                  )}
+                  <p>Si tienes alguna duda contacta a tu coach</p>
+                </>
+              )}
+            </div>
             
             {!isDemoMode && (
               <a 

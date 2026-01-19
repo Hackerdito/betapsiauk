@@ -60,6 +60,7 @@ interface PracticeAreaDetailProps {
   isUserLoggedIn?: boolean;
   monthlyUsageSeconds?: number;
   onTick?: () => void;
+  renewalDate?: string | null;
 }
 
 const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({ 
@@ -67,7 +68,8 @@ const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({
   onBack, 
   isUserLoggedIn = false, 
   monthlyUsageSeconds = 0, 
-  onTick 
+  onTick,
+  renewalDate
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
@@ -214,6 +216,7 @@ const PracticeAreaDetail: React.FC<PracticeAreaDetailProps> = ({
         isUserLoggedIn={isUserLoggedIn}
         monthlyUsageSeconds={monthlyUsageSeconds}
         onTick={onTick}
+        renewalDate={renewalDate}
       />
     </div>
   );
